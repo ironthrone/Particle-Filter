@@ -19,8 +19,6 @@
 
 using namespace std;
 
-void test(Particle &particle);
-
 void ParticleFilter::init(double x, double y, double theta, double std[]) {
   // TODO: Set the number of particles. Initialize all particles to first position (based on estimates of
   //   x, y, theta and their uncertainties from GPS) and all weights to 1.
@@ -71,6 +69,8 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
       particle.y = particle.y + velocity * delta_t * sin(particle.theta);
       particle.theta = particle.theta + delta_t * yaw_rate;
     }
+    //from theory perspective, we need some control noise,such as accelerate noise,yaw accelerate noise,
+    // maybe Tiffany want to simply this problem,she just combined control noise and gps noise
     particle.x = particle.x + dist_x(gen);
     particle.y = particle.y + dist_y(gen);
     particle.theta = particle.theta + dist_theta(gen);
@@ -100,6 +100,7 @@ void ParticleFilter::dataAssociation(std::vector<LandmarkObs> &transformed_obser
   }
 }
 
+//TODO what is the purpose of "sensor range"
 void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
                                    const std::vector<LandmarkObs> &observations, const Map &map_landmarks) {
   // TODO: Update the weights of each particle using a mult-variate Gaussian distribution. You can read
@@ -135,6 +136,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
       sense_y.push_back(obs.y);
     }
     SetAssociations(particle, associations, sense_x, sense_y);
+    //init w to 1
     double w = 1;
     double std_x = std_landmark[0];
     double std_y = std_landmark[1];
@@ -155,9 +157,6 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
   }
 }
 
-void test(Particle &particle) {
-
-}
 
 void ParticleFilter::resample() {
   // TODO: Resample particles with replacement with probability proportional to their weight.
